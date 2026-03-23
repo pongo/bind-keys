@@ -5,6 +5,7 @@ import {
   digits,
   withModifier,
   getLayoutIndependentKey,
+  type KeyCombo,
 } from "./index";
 
 const ALL_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -79,7 +80,9 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.constantFrom(...KEY_CODES), (code) => {
         const key = code.replace("Key", "").toLowerCase();
         const handler = vi.fn();
-        const bound = keysHandlerFactory().add(key, handler).build();
+        const bound = keysHandlerFactory()
+          .add(key as KeyCombo, handler)
+          .build();
 
         bound(new KeyboardEvent("keydown", { key, code }));
         expect(handler).toHaveBeenCalledTimes(1);
@@ -92,7 +95,9 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.constantFrom(...DIGIT_CODES), (code) => {
         const key = code.replace("Digit", "");
         const handler = vi.fn();
-        const bound = keysHandlerFactory().add(key, handler).build();
+        const bound = keysHandlerFactory()
+          .add(key as KeyCombo, handler)
+          .build();
 
         bound(new KeyboardEvent("keydown", { key, code }));
         expect(handler).toHaveBeenCalledTimes(1);
@@ -105,7 +110,9 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.constantFrom(...F_KEYS), (fKey) => {
         const domKey = fKey.toUpperCase();
         const handler = vi.fn();
-        const bound = keysHandlerFactory().add(fKey, handler).build();
+        const bound = keysHandlerFactory()
+          .add(fKey as KeyCombo, handler)
+          .build();
 
         bound(new KeyboardEvent("keydown", { key: domKey, code: domKey }));
         expect(handler).toHaveBeenCalledTimes(1);
@@ -124,7 +131,9 @@ describe("keysHandlerFactory - binding and handling", () => {
           const pressedKey = pressedCode.replace("Key", "").toLowerCase();
 
           const handler = vi.fn();
-          const bound = keysHandlerFactory().add(boundKey, handler).build();
+          const bound = keysHandlerFactory()
+            .add(boundKey as KeyCombo, handler)
+            .build();
 
           bound(
             new KeyboardEvent("keydown", {
@@ -140,22 +149,18 @@ describe("keysHandlerFactory - binding and handling", () => {
 
   it("calls all N handlers registered for the same key exactly once", () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 2, max: 8 }),
-        fc.constantFrom(...KEY_CODES),
-        (n, code) => {
-          const key = code.replace("Key", "").toLowerCase();
-          const handlers = Array.from({ length: n }, () => vi.fn());
-          let factory = keysHandlerFactory();
-          handlers.forEach((h) => {
-            factory = factory.add(key, h);
-          });
-          const bound = factory.build();
+      fc.property(fc.integer({ min: 2, max: 8 }), fc.constantFrom(...KEY_CODES), (n, code) => {
+        const key = code.replace("Key", "").toLowerCase();
+        const handlers = Array.from({ length: n }, () => vi.fn());
+        let factory = keysHandlerFactory();
+        handlers.forEach((h) => {
+          factory = factory.add(key as KeyCombo, h);
+        });
+        const bound = factory.build();
 
-          bound(new KeyboardEvent("keydown", { key, code }));
-          handlers.forEach((h) => expect(h).toHaveBeenCalledTimes(1));
-        },
-      ),
+        bound(new KeyboardEvent("keydown", { key, code }));
+        handlers.forEach((h) => expect(h).toHaveBeenCalledTimes(1));
+      }),
     );
   });
 
@@ -166,7 +171,9 @@ describe("keysHandlerFactory - binding and handling", () => {
         const handler = vi.fn((e: KeyboardEvent) => {
           received = e;
         });
-        const bound = keysHandlerFactory().add(key, handler).build();
+        const bound = keysHandlerFactory()
+          .add(key as KeyCombo, handler)
+          .build();
 
         const event = new KeyboardEvent("keydown", { key });
         bound(event);
@@ -186,7 +193,7 @@ describe("keysHandlerFactory - modifiers", () => {
         (key, { combo, eventInit }) => {
           const handler = vi.fn();
           const bound = keysHandlerFactory()
-            .add(`${combo}+${key}`, handler)
+            .add(`${combo}+${key}` as KeyCombo, handler)
             .build();
 
           bound(new KeyboardEvent("keydown", { key, ...eventInit }));
@@ -204,7 +211,7 @@ describe("keysHandlerFactory - modifiers", () => {
         (key, { combo }) => {
           const handler = vi.fn();
           const bound = keysHandlerFactory()
-            .add(`${combo}+${key}`, handler)
+            .add(`${combo}+${key}` as KeyCombo, handler)
             .build();
 
           bound(new KeyboardEvent("keydown", { key }));
@@ -218,7 +225,9 @@ describe("keysHandlerFactory - modifiers", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory().add(`ctrl+${key}`, handler).build();
+        const bound = keysHandlerFactory()
+          .add(`ctrl+${key}` as KeyCombo, handler)
+          .build();
 
         bound(new KeyboardEvent("keydown", { key, altKey: true }));
         expect(handler).not.toHaveBeenCalled();
@@ -240,7 +249,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
         const key = code.replace("Key", "").toLowerCase();
         const handler = vi.fn();
         const bound = keysHandlerFactory()
-          .add(key, handler, { prevent: true })
+          .add(key as KeyCombo, handler, { prevent: true })
           .build();
 
         const event = new KeyboardEvent("keydown", { key, code });
@@ -259,7 +268,9 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory().add(key, handler).build();
+        const bound = keysHandlerFactory()
+          .add(key as KeyCombo, handler)
+          .build();
 
         const event = new KeyboardEvent("keydown", { key });
         const preventSpy = vi.spyOn(event, "preventDefault");
@@ -277,7 +288,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
         const bound = keysHandlerFactory()
-          .add(key, handler, { filterInput: true })
+          .add(key as KeyCombo, handler, { filterInput: true })
           .build();
 
         const input = document.createElement("input");
@@ -299,7 +310,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
         const bound = keysHandlerFactory()
-          .add(key, handler, { filterInput: true })
+          .add(key as KeyCombo, handler, { filterInput: true })
           .build();
 
         const textarea = document.createElement("textarea");
@@ -320,19 +331,16 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
 describe("Russian layout handling", () => {
   it("every Russian key triggers handler bound to its physical English key", () => {
     for (const [code, russianChar] of RUSSIAN_ENTRIES) {
-      const englishKey = getLayoutIndependentKey(
-        new KeyboardEvent("keydown", { code }),
-      );
+      const englishKey = getLayoutIndependentKey(new KeyboardEvent("keydown", { code }));
       if (!englishKey) continue;
 
       const handler = vi.fn();
-      const bound = keysHandlerFactory().add(englishKey, handler).build();
+      const bound = keysHandlerFactory()
+        .add(englishKey as KeyCombo, handler)
+        .build();
 
       bound(new KeyboardEvent("keydown", { key: russianChar, code }));
-      expect(
-        handler,
-        `code=${code} (${russianChar} → ${englishKey})`,
-      ).toHaveBeenCalledTimes(1);
+      expect(handler, `code=${code} (${russianChar} → ${englishKey})`).toHaveBeenCalledTimes(1);
     }
   });
 
@@ -349,11 +357,11 @@ describe("Russian layout handling", () => {
           fc.pre(englishKey2 !== undefined);
 
           const handler = vi.fn();
-          const bound = keysHandlerFactory().add(englishKey2!, handler).build();
+          const bound = keysHandlerFactory()
+            .add(englishKey2! as KeyCombo, handler)
+            .build();
 
-          bound(
-            new KeyboardEvent("keydown", { key: russianChar, code: code1 }),
-          );
+          bound(new KeyboardEvent("keydown", { key: russianChar, code: code1 }));
           expect(handler).not.toHaveBeenCalled();
         },
       ),
@@ -411,9 +419,7 @@ describe("Helper Functions", () => {
     it("always returns lowercase single char for Key* codes", () => {
       fc.assert(
         fc.property(fc.constantFrom(...KEY_CODES), (code) => {
-          const result = getLayoutIndependentKey(
-            new KeyboardEvent("keydown", { code }),
-          );
+          const result = getLayoutIndependentKey(new KeyboardEvent("keydown", { code }));
           expect(result).toBeDefined();
           expect(result).toHaveLength(1);
           expect(result).toBe(result!.toLowerCase());
@@ -425,9 +431,7 @@ describe("Helper Functions", () => {
       fc.assert(
         fc.property(fc.constantFrom(...ALL_DIGITS), (digit) => {
           const code = `Digit${digit}`;
-          const result = getLayoutIndependentKey(
-            new KeyboardEvent("keydown", { code }),
-          );
+          const result = getLayoutIndependentKey(new KeyboardEvent("keydown", { code }));
           expect(result).toBe(digit);
         }),
       );
@@ -436,12 +440,8 @@ describe("Helper Functions", () => {
     it("calling twice with same code returns same value (pure/deterministic)", () => {
       fc.assert(
         fc.property(fc.constantFrom(...KEY_CODES), (code) => {
-          const a = getLayoutIndependentKey(
-            new KeyboardEvent("keydown", { code }),
-          );
-          const b = getLayoutIndependentKey(
-            new KeyboardEvent("keydown", { code }),
-          );
+          const a = getLayoutIndependentKey(new KeyboardEvent("keydown", { code }));
+          const b = getLayoutIndependentKey(new KeyboardEvent("keydown", { code }));
           expect(a).toBe(b);
         }),
       );

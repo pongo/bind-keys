@@ -184,6 +184,84 @@ const CODE_TO_KEY = new Map<string, string>([
   ["F12", "f12"],
 ]);
 
+type LetterKey =
+  | "a"
+  | "b"
+  | "c"
+  | "d"
+  | "e"
+  | "f"
+  | "g"
+  | "h"
+  | "i"
+  | "j"
+  | "k"
+  | "l"
+  | "m"
+  | "n"
+  | "o"
+  | "p"
+  | "q"
+  | "r"
+  | "s"
+  | "t"
+  | "u"
+  | "v"
+  | "w"
+  | "x"
+  | "y"
+  | "z";
+
+type DigitKey = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+type SymbolKey = "-" | "=" | "[" | "]" | "\\" | ";" | "'" | "," | "." | "/" | "`";
+
+type NamedKey =
+  | "enter"
+  | "tab"
+  | "backspace"
+  | "delete"
+  | "insert"
+  | "home"
+  | "end"
+  | "pageup"
+  | "pagedown"
+  | "arrowup"
+  | "arrowdown"
+  | "arrowleft"
+  | "arrowright"
+  | "escape"
+  | "esc"
+  | "capslock"
+  | "space"
+  | "up"
+  | "down"
+  | "left"
+  | "right"
+  | "pgup"
+  | "pgdown"
+  | "f1"
+  | "f2"
+  | "f3"
+  | "f4"
+  | "f5"
+  | "f6"
+  | "f7"
+  | "f8"
+  | "f9"
+  | "f10"
+  | "f11"
+  | "f12";
+
+export type BaseKey = LetterKey | DigitKey | SymbolKey | NamedKey;
+export type Modifier = "ctrl" | "shift" | "alt" | "meta" | "cmd" | "win";
+
+export type KeyCombo =
+  | BaseKey
+  | `${Modifier}+${BaseKey}`
+  | `${Modifier}+${Modifier}+${BaseKey}`
+  | `${Modifier}+${Modifier}+${Modifier}+${BaseKey}`;
+
 /**
  * Returns the English key name associated with the physical key pressed,
  * based on the `event.code` property. This effectively ignores the current
@@ -257,7 +335,7 @@ export class KeysHandlerBuilder {
    * @param options - Optional configuration for this specific binding.
    * @returns The builder instance for chaining.
    */
-  add(keys: string | string[], handler: Handler, options: BindOptions = {}): this {
+  add(keys: KeyCombo | readonly KeyCombo[], handler: Handler, options: BindOptions = {}): this {
     const keyArray = Array.isArray(keys) ? keys : [keys];
     for (const k of keyArray) {
       if (!k) continue;
