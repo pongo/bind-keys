@@ -175,6 +175,7 @@ describe("bind-keys", () => {
 
   it("ignores empty keys in add()", () => {
     const handler = vi.fn();
+    // @ts-expect-error empty string is not a valid key
     const bound = keysHandlerFactory().add("", handler).add(["a", ""], handler).build();
 
     bound(new KeyboardEvent("keydown", { key: "a" }));
@@ -246,21 +247,33 @@ describe("bind-keys", () => {
 
     it("returns numpad keys", () => {
       expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Numpad1" }))).toBe("1");
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadAdd" }))).toBe("+");
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadEnter" }))).toBe("enter");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadAdd" }))).toBe(
+        "+",
+      );
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadEnter" }))).toBe(
+        "enter",
+      );
     });
 
     it("returns punctuation and symbols", () => {
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "BracketLeft" }))).toBe("[");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "BracketLeft" }))).toBe(
+        "[",
+      );
       expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Quote" }))).toBe("'");
       expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Slash" }))).toBe("/");
     });
 
     it("returns special keys", () => {
       expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Space" }))).toBe(" ");
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Enter" }))).toBe("enter");
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "ArrowUp" }))).toBe("arrowup");
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Escape" }))).toBe("escape");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Enter" }))).toBe(
+        "enter",
+      );
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "ArrowUp" }))).toBe(
+        "arrowup",
+      );
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Escape" }))).toBe(
+        "escape",
+      );
     });
 
     it("returns function keys", () => {
@@ -269,7 +282,9 @@ describe("bind-keys", () => {
     });
 
     it("returns undefined for unknown codes", () => {
-      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "UnknownCode" }))).toBeUndefined();
+      expect(
+        getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "UnknownCode" })),
+      ).toBeUndefined();
     });
   });
 });
