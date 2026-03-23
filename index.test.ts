@@ -1,17 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
-import { keysHandlerFactory, digits, withModifier } from "./index";
+import { keysHandlerFactory, digits, withModifier, getLayoutIndependentKey } from "./index";
 
 describe("bind-keys", () => {
   it("binds a single key", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("a", handler)
-      .build();
+    const bound = keysHandlerFactory().add("a", handler).build();
 
     const event = new KeyboardEvent("keydown", { key: "a" });
     bound(event);
     expect(handler).toHaveBeenCalledTimes(1);
-    
+
     const event2 = new KeyboardEvent("keydown", { key: "b" });
     bound(event2);
     expect(handler).toHaveBeenCalledTimes(1);
@@ -19,9 +17,7 @@ describe("bind-keys", () => {
 
   it("handles modifiers", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("ctrl+shift+z", handler)
-      .build();
+    const bound = keysHandlerFactory().add("ctrl+shift+z", handler).build();
 
     bound(new KeyboardEvent("keydown", { key: "z", ctrlKey: true, shiftKey: true }));
     expect(handler).toHaveBeenCalledTimes(1);
@@ -39,7 +35,7 @@ describe("bind-keys", () => {
 
     bound(new KeyboardEvent("keydown", { key: "c", ctrlKey: true }));
     expect(handler).toHaveBeenCalledTimes(1);
-    
+
     bound(new KeyboardEvent("keydown", { key: "v", ctrlKey: true }));
     expect(handler).toHaveBeenCalledTimes(2);
 
@@ -52,9 +48,7 @@ describe("bind-keys", () => {
 
   it("applies prevent default and stop propagation", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("x", handler, { prevent: true })
-      .build();
+    const bound = keysHandlerFactory().add("x", handler, { prevent: true }).build();
 
     const event = new KeyboardEvent("keydown", { key: "x" });
     const preventDefaultSpy = vi.spyOn(event, "preventDefault");
@@ -69,18 +63,16 @@ describe("bind-keys", () => {
 
   it("filters input elements effectively", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("y", handler, { filterInput: true })
-      .build();
+    const bound = keysHandlerFactory().add("y", handler, { filterInput: true }).build();
 
     // Text input
     const input = document.createElement("input");
     input.type = "text";
-    
+
     // Simulate event from an input element
     const event1 = new KeyboardEvent("keydown", { key: "y" });
     Object.defineProperty(event1, "target", { value: input, enumerable: true });
-    
+
     bound(event1);
     expect(handler).toHaveBeenCalledTimes(0);
 
@@ -177,16 +169,13 @@ describe("bind-keys", () => {
     bound(new KeyboardEvent("keydown", { key: "Delete" }));
     bound(new KeyboardEvent("keydown", { key: "Home" }));
     bound(new KeyboardEvent("keydown", { key: "End" }));
-    
+
     expect(handler).toHaveBeenCalledTimes(9);
   });
 
   it("ignores empty keys in add()", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("", handler)
-      .add(["a", ""], handler)
-      .build();
+    const bound = keysHandlerFactory().add("", handler).add(["a", ""], handler).build();
 
     bound(new KeyboardEvent("keydown", { key: "a" }));
     expect(handler).toHaveBeenCalledTimes(1);
@@ -195,10 +184,7 @@ describe("bind-keys", () => {
   it("calls multiple handlers for the same key", () => {
     const h1 = vi.fn();
     const h2 = vi.fn();
-    const bound = keysHandlerFactory()
-      .add("s", h1)
-      .add("s", h2)
-      .build();
+    const bound = keysHandlerFactory().add("s", h1).add("s", h2).build();
 
     bound(new KeyboardEvent("keydown", { key: "s" }));
     expect(h1).toHaveBeenCalledTimes(1);
@@ -211,7 +197,79 @@ describe("bind-keys", () => {
 
   it("withModifier() combines modifier and keys", () => {
     expect(withModifier("alt", ["a", "b"])).toEqual(["alt+a", "alt+b"]);
-    expect(withModifier("ctrl+shift", digits().slice(0, 3))).toEqual(["ctrl+shift+0", "ctrl+shift+1", "ctrl+shift+2"]);
+    expect(withModifier("ctrl+shift", digits().slice(0, 3))).toEqual([
+      "ctrl+shift+0",
+      "ctrl+shift+1",
+      "ctrl+shift+2",
+    ]);
+  });
+
+  it("handles different keyboard layouts (e.g., Russian)", () => {
+    const handler = vi.fn();
+    const bound = keysHandlerFactory().add("q", handler).build();
+
+    // Russian 'й' is on the same physical key as 'q'
+    const event = new KeyboardEvent("keydown", {
+      key: "й",
+      code: "KeyQ",
+    });
+
+    bound(event);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("handles punctuation in non-English layouts (e.g., Russian 'э' for Quote)", () => {
+    const handler = vi.fn();
+    const bound = keysHandlerFactory().add("'", handler).build();
+
+    // Russian 'э' is on the same physical key as "'"
+    const event = new KeyboardEvent("keydown", {
+      key: "э",
+      code: "Quote",
+    });
+
+    bound(event);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  describe("getLayoutIndependentKey", () => {
+    it("returns English letters for various layouts", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "KeyQ" }))).toBe("q");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "KeyA" }))).toBe("a");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "KeyM" }))).toBe("m");
+    });
+
+    it("returns top-row digits", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Digit1" }))).toBe("1");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Digit0" }))).toBe("0");
+    });
+
+    it("returns numpad keys", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Numpad1" }))).toBe("1");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadAdd" }))).toBe("+");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "NumpadEnter" }))).toBe("enter");
+    });
+
+    it("returns punctuation and symbols", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "BracketLeft" }))).toBe("[");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Quote" }))).toBe("'");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Slash" }))).toBe("/");
+    });
+
+    it("returns special keys", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Space" }))).toBe(" ");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Enter" }))).toBe("enter");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "ArrowUp" }))).toBe("arrowup");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "Escape" }))).toBe("escape");
+    });
+
+    it("returns function keys", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "F1" }))).toBe("f1");
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "F12" }))).toBe("f12");
+    });
+
+    it("returns undefined for unknown codes", () => {
+      expect(getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "UnknownCode" }))).toBeUndefined();
+    });
   });
 });
-
