@@ -201,7 +201,7 @@ export function getLayoutIndependentKey(event: KeyboardEvent): string | undefine
   return CODE_TO_KEY.get(event.code);
 }
 
-function defaultFilter(event: KeyboardEvent): boolean {
+function filterInput(event: KeyboardEvent): boolean {
   const target = event.target;
 
   if (!(target instanceof HTMLElement)) {
@@ -312,7 +312,7 @@ export class KeysHandlerBuilder {
           binding.meta === event.metaKey &&
           (keyMatch || codeMatch)
         ) {
-          if (binding.options.filterInput && !defaultFilter(event)) {
+          if (binding.options.filterInput && !filterInput(event)) {
             continue;
           }
 
