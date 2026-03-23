@@ -1,0 +1,25 @@
+{
+  "name": "bind-keys",
+  "version": "1.0.0",
+  "description": "A lightweight keyboard binding library for web applications.",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "keyboard",
+    "shortcuts",
+    "hotkeys",
+    "bindings"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "typescript": "^5.0.0",
+    "jsdom": "^24.0.0"
+  }
+}
