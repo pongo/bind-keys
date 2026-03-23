@@ -2,10 +2,10 @@
  * Returns an array of strings representing digits from "0" to "9".
  * Useful for binding numeric keys.
  *
- * @returns {string[]} An array containing ["0", "1", ..., "9"].
+ * @returns An array containing ["0", "1", ..., "9"].
  */
-export function digits(): string[] {
-  return Array.from({ length: 10 }, (_, i) => i.toString());
+export function digits(): BaseKey[] {
+  return Array.from({ length: 10 }, (_, i) => i.toString() as BaseKey);
 }
 
 /**
@@ -13,13 +13,16 @@ export function digits(): string[] {
  *
  * @param modifier - The modifier key to add (e.g., "ctrl", "alt", "shift").
  * @param keys - An array of keys to be modified.
- * @returns {string[]} A new array with keys prefixed by the modifier.
+ * @returns A new array with keys prefixed by the modifier.
  *
  * @example
  * withModifier("alt", ["1", "2"]) // returns ["alt+1", "alt+2"]
  */
-export function withModifier(modifier: string, keys: string[]): string[] {
-  return keys.map((key) => `${modifier}+${key}`);
+export function withModifier<M extends CombinedModifier, K extends BaseKey>(
+  modifier: M,
+  keys: K[],
+): `${M}+${K}`[] {
+  return keys.map((key) => `${modifier}+${key}`) as `${M}+${K}`[];
 }
 
 /**
@@ -198,6 +201,11 @@ export type KeyCombo =
   | `${Modifier}+${BaseKey}`
   | `${Modifier}+${Modifier}+${BaseKey}`
   | `${Modifier}+${Modifier}+${Modifier}+${BaseKey}`;
+
+export type CombinedModifier =
+  | Modifier
+  | `${Modifier}+${Modifier}`
+  | `${Modifier}+${Modifier}+${Modifier}`;
 
 /**
  * Returns the English key name associated with the physical key pressed,

@@ -6,6 +6,7 @@ import {
   withModifier,
   getLayoutIndependentKey,
   type KeyCombo,
+  type BaseKey,
 } from "./index";
 
 const ALL_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -380,7 +381,7 @@ describe("Helper Functions", () => {
             maxLength: 15,
           }),
           (modifier, keys) => {
-            const result = withModifier(modifier, keys);
+            const result = withModifier(modifier, keys as BaseKey[]);
             expect(result).toHaveLength(keys.length);
 
             for (let i = 0; i < result.length; i++) {
