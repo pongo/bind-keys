@@ -64,7 +64,7 @@ const NON_TEXT_INPUT_TYPES = new Set([
   "color",
 ]);
 
-const KEY_ALIASES = new Map<string, string>([
+const CODE_TO_KEY_ENTRIES = [
   ["up", "arrowup"],
   ["down", "arrowdown"],
   ["left", "arrowleft"],
@@ -82,10 +82,11 @@ const KEY_ALIASES = new Map<string, string>([
   ["esc", "escape"],
   ["escape", "escape"],
   ["tab", "tab"],
-]);
+] as const;
 
-const CODE_TO_KEY = new Map<string, string>([
-  // Letters
+const KEY_ALIASES = new Map<string, string>(CODE_TO_KEY_ENTRIES);
+
+const KEY_ALIASES_ENTRIES = [
   ["KeyA", "a"],
   ["KeyB", "b"],
   ["KeyC", "c"],
@@ -182,78 +183,14 @@ const CODE_TO_KEY = new Map<string, string>([
   ["F10", "f10"],
   ["F11", "f11"],
   ["F12", "f12"],
-]);
+] as const;
 
-type LetterKey =
-  | "a"
-  | "b"
-  | "c"
-  | "d"
-  | "e"
-  | "f"
-  | "g"
-  | "h"
-  | "i"
-  | "j"
-  | "k"
-  | "l"
-  | "m"
-  | "n"
-  | "o"
-  | "p"
-  | "q"
-  | "r"
-  | "s"
-  | "t"
-  | "u"
-  | "v"
-  | "w"
-  | "x"
-  | "y"
-  | "z";
+const CODE_TO_KEY = new Map<string, string>(KEY_ALIASES_ENTRIES);
 
-type DigitKey = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+type CodeKeyValue = (typeof CODE_TO_KEY_ENTRIES)[number][0];
+type AliasKeyName = (typeof KEY_ALIASES_ENTRIES)[number][1];
 
-type SymbolKey = "-" | "=" | "[" | "]" | "\\" | ";" | "'" | "," | "." | "/" | "`";
-
-type NamedKey =
-  | "enter"
-  | "tab"
-  | "backspace"
-  | "delete"
-  | "insert"
-  | "home"
-  | "end"
-  | "pageup"
-  | "pagedown"
-  | "arrowup"
-  | "arrowdown"
-  | "arrowleft"
-  | "arrowright"
-  | "escape"
-  | "esc"
-  | "capslock"
-  | "space"
-  | "up"
-  | "down"
-  | "left"
-  | "right"
-  | "pgup"
-  | "pgdown"
-  | "f1"
-  | "f2"
-  | "f3"
-  | "f4"
-  | "f5"
-  | "f6"
-  | "f7"
-  | "f8"
-  | "f9"
-  | "f10"
-  | "f11"
-  | "f12";
-
-export type BaseKey = LetterKey | DigitKey | SymbolKey | NamedKey;
+export type BaseKey = CodeKeyValue | AliasKeyName;
 export type Modifier = "ctrl" | "shift" | "alt" | "meta" | "cmd" | "win";
 
 export type KeyCombo =
