@@ -1,16 +1,6 @@
 # bind-keys
 
-A simple, lightweight keyboard shortcut binding library for the browser.
-
-## Features
-
-- **Fluent API**: Builder-based syntax for defining multiple shortcuts.
-- **Modifiers**: Full support for `ctrl`, `shift`, `alt`, and `meta` (cmd/win).
-- **Aliases**: Common key names like `enter`, `space`, `esc`, `up`, `down`, etc.
-- **Input Filtering**: Automatically ignore shortcuts when typing in input fields.
-- **Event Control**: Built-in support for `preventDefault()` and `stopPropagation()`.
-- **Layout Independence**: Built-in logic to handle shortcuts consistently across different keyboard layouts (e.g., Russian).
-- **Utilities**: Helper functions for common patterns like numeric keys.
+A simple, lightweight keyboard shortcut binding library for the browser. Zero dependencies.
 
 ## Installation
 
@@ -22,7 +12,7 @@ import { keysHandlerBuilder } from "./bind-keys";
 
 ## Usage
 
-### Basic Example
+### Example
 
 ```typescript
 const handler = keysHandlerBuilder()
@@ -31,39 +21,16 @@ const handler = keysHandlerBuilder()
     (e) => {
       console.log("Save triggered");
     },
-    { prevent: true },
+    { prevent: true }, // calls event.preventDefault() and event.stopPropagation()
   )
-  .add(["enter", "space"], () => {
+  .add(["enter", "space"], (e) => {
+    e.preventDefault();
     console.log("Confirmed");
   })
+  .add("f", () => search(), { filterInput: true }) // ignores events from text inputs elements
   .build();
 
 window.addEventListener("keydown", handler);
-```
-
-### Input Filtering
-
-Use `filterInput: true` to prevent the shortcut from triggering when the user is typing in a text field, textarea, or contentEditable element.
-
-```typescript
-const handler = keysHandlerBuilder()
-  .add("f", () => search(), { filterInput: true })
-  .build();
-```
-
-### Bulk Bindings and Utilities
-
-You can bind multiple keys at once using an array.
-
-```typescript
-import { keysHandlerBuilder, digits, withModifier } from "./bind-keys";
-
-const handler = keysHandlerBuilder()
-  .add(withModifier("alt", digits()), (e) => {
-    const index = parseInt(e.key);
-    navigateTo(index);
-  })
-  .build();
 ```
 
 ## API Reference
@@ -74,7 +41,7 @@ Creates a new `KeysHandlerBuilder`.
 
 ### `KeysHandlerBuilder`
 
-- `.add(keys: string | string[], handler: Handler, options?: BindOptions)`: Adds a binding.
+- `.add(keys, handler, options)`: Adds a binding.
   - `keys`: A combo string like `"ctrl+shift+a"` or an array of such strings.
   - `handler`: `(event: KeyboardEvent) => void`.
   - `options`:
@@ -84,6 +51,10 @@ Creates a new `KeysHandlerBuilder`.
 
 ### Utilities
 
-- `digits()`: Returns `["0", "1", ..., "9"]`.
-- `withModifier(modifier: string, keys: string[])`: Prefixes all `keys` with the `modifier`.
-- `getLayoutIndependentKey(event: KeyboardEvent)`: Returns the English key name associated with the physical key pressed (based on `event.code`). This allows shortcuts to work regardless of the active keyboard layout.
+```typescript
+digits(); // ["0", "1", ..., "9"]
+
+withModifier("alt", digits()); // ["alt+0", "alt+1", ..., "alt+9"]
+
+getLayoutIndependentKey(new KeyboardEvent("keydown", { code: "KeyQ" })); // "q"
+```
