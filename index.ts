@@ -269,7 +269,7 @@ export function keysHandlerFactory(): KeysHandlerBuilder {
  * Builder class for creating keyboard event handlers with multiple bindings.
  */
 export class KeysHandlerBuilder {
-  #bindings: ParsedBinding[] = [];
+  readonly #bindings: ParsedBinding[] = [];
 
   /**
    * Adds a new key binding to the builder.
