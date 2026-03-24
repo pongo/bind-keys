@@ -1,6 +1,6 @@
 # bind-keys
 
-A simple, lightweight keyboard shortcut binding library for the browser. Zero dependencies.
+A simple keyboard shortcut binding library. Zero dependencies.
 
 ## Installation
 
@@ -27,7 +27,7 @@ const handler = keysHandlerBuilder()
     e.preventDefault();
     console.log("Confirmed");
   })
-  .add("f", () => search(), { filterInput: true }) // ignores events from text inputs elements
+  .add("f", () => search(), { filterInput: true }) // ignores events from text inputs
   .build();
 
 window.addEventListener("keydown", handler);
