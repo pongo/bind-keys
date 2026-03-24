@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { keysHandlerFactory, digits, withModifier, getLayoutIndependentKey } from "./index";
+import { keysHandlerBuilder, digits, withModifier, getLayoutIndependentKey } from "./index";
 
 describe("bind-keys", () => {
   it("binds a single key", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("a", handler).build();
+    const bound = keysHandlerBuilder().add("a", handler).build();
 
     const event = new KeyboardEvent("keydown", { key: "a" });
     bound(event);
@@ -17,7 +17,7 @@ describe("bind-keys", () => {
 
   it("handles modifiers", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("ctrl+shift+z", handler).build();
+    const bound = keysHandlerBuilder().add("ctrl+shift+z", handler).build();
 
     bound(new KeyboardEvent("keydown", { key: "z", ctrlKey: true, shiftKey: true }));
     expect(handler).toHaveBeenCalledTimes(1);
@@ -28,7 +28,7 @@ describe("bind-keys", () => {
 
   it("handles multiple keys as an array", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
+    const bound = keysHandlerBuilder()
       .add(["ctrl+c", "ctrl+v"], handler)
       .add(["space", "enter"], handler)
       .build();
@@ -48,7 +48,7 @@ describe("bind-keys", () => {
 
   it("applies prevent default and stop propagation", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("x", handler, { prevent: true }).build();
+    const bound = keysHandlerBuilder().add("x", handler, { prevent: true }).build();
 
     const event = new KeyboardEvent("keydown", { key: "x" });
     const preventDefaultSpy = vi.spyOn(event, "preventDefault");
@@ -63,7 +63,7 @@ describe("bind-keys", () => {
 
   it("filters input elements effectively", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("y", handler, { filterInput: true }).build();
+    const bound = keysHandlerBuilder().add("y", handler, { filterInput: true }).build();
 
     // Text input
     const input = document.createElement("input");
@@ -132,7 +132,7 @@ describe("bind-keys", () => {
 
   it("handles all modifiers including meta, cmd, win", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
+    const bound = keysHandlerBuilder()
       .add("meta+alt+k", handler)
       .add("cmd+k", handler) // both cmd and win map to meta
       .add("win+k", handler)
@@ -148,7 +148,7 @@ describe("bind-keys", () => {
 
   it("handles key aliases", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory()
+    const bound = keysHandlerBuilder()
       .add("up", handler)
       .add("esc", handler)
       .add("pgup", handler)
@@ -176,7 +176,7 @@ describe("bind-keys", () => {
   it("ignores empty keys in add()", () => {
     const handler = vi.fn();
     // @ts-expect-error empty string is not a valid key
-    const bound = keysHandlerFactory().add("", handler).add(["a", ""], handler).build();
+    const bound = keysHandlerBuilder().add("", handler).add(["a", ""], handler).build();
 
     bound(new KeyboardEvent("keydown", { key: "a" }));
     expect(handler).toHaveBeenCalledTimes(1);
@@ -185,7 +185,7 @@ describe("bind-keys", () => {
   it("calls multiple handlers for the same key", () => {
     const h1 = vi.fn();
     const h2 = vi.fn();
-    const bound = keysHandlerFactory().add("s", h1).add("s", h2).build();
+    const bound = keysHandlerBuilder().add("s", h1).add("s", h2).build();
 
     bound(new KeyboardEvent("keydown", { key: "s" }));
     expect(h1).toHaveBeenCalledTimes(1);
@@ -207,7 +207,7 @@ describe("bind-keys", () => {
 
   it("handles different keyboard layouts (e.g., Russian)", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("q", handler).build();
+    const bound = keysHandlerBuilder().add("q", handler).build();
 
     // Russian 'й' is on the same physical key as 'q'
     const event = new KeyboardEvent("keydown", {
@@ -221,7 +221,7 @@ describe("bind-keys", () => {
 
   it("handles punctuation in non-English layouts (e.g., Russian 'э' for Quote)", () => {
     const handler = vi.fn();
-    const bound = keysHandlerFactory().add("'", handler).build();
+    const bound = keysHandlerBuilder().add("'", handler).build();
 
     // Russian 'э' is on the same physical key as "'"
     const event = new KeyboardEvent("keydown", {

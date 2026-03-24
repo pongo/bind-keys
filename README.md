@@ -16,7 +16,7 @@ A simple, lightweight keyboard shortcut binding library for the browser.
 This is an internal library. Import it directly from its directory:
 
 ```typescript
-import { keysHandlerFactory } from "@/lib/bind-keys";
+import { keysHandlerBuilder } from "@/lib/bind-keys";
 ```
 
 ## Usage
@@ -24,10 +24,14 @@ import { keysHandlerFactory } from "@/lib/bind-keys";
 ### Basic Example
 
 ```typescript
-const handler = keysHandlerFactory()
-  .add("ctrl+s", (e) => {
-    console.log("Save triggered");
-  }, { prevent: true })
+const handler = keysHandlerBuilder()
+  .add(
+    "ctrl+s",
+    (e) => {
+      console.log("Save triggered");
+    },
+    { prevent: true },
+  )
   .add(["enter", "space"], () => {
     console.log("Confirmed");
   })
@@ -41,7 +45,7 @@ window.addEventListener("keydown", handler);
 Use `filterInput: true` to prevent the shortcut from triggering when the user is typing in a text field, textarea, or contentEditable element.
 
 ```typescript
-const handler = keysHandlerFactory()
+const handler = keysHandlerBuilder()
   .add("f", () => search(), { filterInput: true })
   .build();
 ```
@@ -51,9 +55,9 @@ const handler = keysHandlerFactory()
 You can bind multiple keys at once using an array.
 
 ```typescript
-import { keysHandlerFactory, digits, withModifier } from "@/lib/bind-keys";
+import { keysHandlerBuilder, digits, withModifier } from "@/lib/bind-keys";
 
-const handler = keysHandlerFactory()
+const handler = keysHandlerBuilder()
   .add(withModifier("alt", digits()), (e) => {
     const index = parseInt(e.key);
     navigateTo(index);
@@ -63,7 +67,8 @@ const handler = keysHandlerFactory()
 
 ## API Reference
 
-### `keysHandlerFactory()`
+### `keysHandlerBuilder()`
+
 Creates a new `KeysHandlerBuilder`.
 
 ### `KeysHandlerBuilder`

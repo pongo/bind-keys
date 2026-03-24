@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import fc from "fast-check";
 import {
-  keysHandlerFactory,
+  keysHandlerBuilder,
   digits,
   withModifier,
   getLayoutIndependentKey,
@@ -75,13 +75,13 @@ const MODIFIER_COMBOS: ModifierCombo[] = [
 ];
 const MODIFIERS = ["ctrl", "alt", "shift", "meta"] as const;
 
-describe("keysHandlerFactory - binding and handling", () => {
+describe("keysHandlerBuilder - binding and handling", () => {
   it("binds every latin letter key (a–z) correctly", () => {
     fc.assert(
       fc.property(fc.constantFrom(...KEY_CODES), (code) => {
         const key = code.replace("Key", "").toLowerCase();
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler)
           .build();
 
@@ -96,7 +96,7 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.constantFrom(...DIGIT_CODES), (code) => {
         const key = code.replace("Digit", "");
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler)
           .build();
 
@@ -111,7 +111,7 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.constantFrom(...F_KEYS), (fKey) => {
         const domKey = fKey.toUpperCase();
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(fKey as KeyCombo, handler)
           .build();
 
@@ -132,7 +132,7 @@ describe("keysHandlerFactory - binding and handling", () => {
           const pressedKey = pressedCode.replace("Key", "").toLowerCase();
 
           const handler = vi.fn();
-          const bound = keysHandlerFactory()
+          const bound = keysHandlerBuilder()
             .add(boundKey as KeyCombo, handler)
             .build();
 
@@ -153,7 +153,7 @@ describe("keysHandlerFactory - binding and handling", () => {
       fc.property(fc.integer({ min: 2, max: 8 }), fc.constantFrom(...KEY_CODES), (n, code) => {
         const key = code.replace("Key", "").toLowerCase();
         const handlers = Array.from({ length: n }, () => vi.fn());
-        let factory = keysHandlerFactory();
+        let factory = keysHandlerBuilder();
         handlers.forEach((h) => {
           factory = factory.add(key as KeyCombo, h);
         });
@@ -172,7 +172,7 @@ describe("keysHandlerFactory - binding and handling", () => {
         const handler = vi.fn((e: KeyboardEvent) => {
           received = e;
         });
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler)
           .build();
 
@@ -185,7 +185,7 @@ describe("keysHandlerFactory - binding and handling", () => {
   });
 });
 
-describe("keysHandlerFactory - modifiers", () => {
+describe("keysHandlerBuilder - modifiers", () => {
   it("triggers handler for every valid modifier+key combination", () => {
     fc.assert(
       fc.property(
@@ -193,7 +193,7 @@ describe("keysHandlerFactory - modifiers", () => {
         fc.constantFrom(...MODIFIER_COMBOS),
         (key, { combo, eventInit }) => {
           const handler = vi.fn();
-          const bound = keysHandlerFactory()
+          const bound = keysHandlerBuilder()
             .add(`${combo}+${key}` as KeyCombo, handler)
             .build();
 
@@ -211,7 +211,7 @@ describe("keysHandlerFactory - modifiers", () => {
         fc.constantFrom(...MODIFIER_COMBOS),
         (key, { combo }) => {
           const handler = vi.fn();
-          const bound = keysHandlerFactory()
+          const bound = keysHandlerBuilder()
             .add(`${combo}+${key}` as KeyCombo, handler)
             .build();
 
@@ -226,7 +226,7 @@ describe("keysHandlerFactory - modifiers", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(`ctrl+${key}` as KeyCombo, handler)
           .build();
 
@@ -243,13 +243,13 @@ describe("keysHandlerFactory - modifiers", () => {
   });
 });
 
-describe("keysHandlerFactory - options (prevent, filterInput)", () => {
+describe("keysHandlerBuilder - options (prevent, filterInput)", () => {
   it("preventDefault and stopPropagation are called for any key with prevent:true", () => {
     fc.assert(
       fc.property(fc.constantFrom(...KEY_CODES), (code) => {
         const key = code.replace("Key", "").toLowerCase();
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler, { prevent: true })
           .build();
 
@@ -269,7 +269,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler)
           .build();
 
@@ -288,7 +288,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler, { filterInput: true })
           .build();
 
@@ -310,7 +310,7 @@ describe("keysHandlerFactory - options (prevent, filterInput)", () => {
     fc.assert(
       fc.property(fc.constantFrom(...ALL_LETTERS), (key) => {
         const handler = vi.fn();
-        const bound = keysHandlerFactory()
+        const bound = keysHandlerBuilder()
           .add(key as KeyCombo, handler, { filterInput: true })
           .build();
 
@@ -336,7 +336,7 @@ describe("Russian layout handling", () => {
       if (!englishKey) continue;
 
       const handler = vi.fn();
-      const bound = keysHandlerFactory()
+      const bound = keysHandlerBuilder()
         .add(englishKey as KeyCombo, handler)
         .build();
 
@@ -358,7 +358,7 @@ describe("Russian layout handling", () => {
           fc.pre(englishKey2 !== undefined);
 
           const handler = vi.fn();
-          const bound = keysHandlerFactory()
+          const bound = keysHandlerBuilder()
             .add(englishKey2! as KeyCombo, handler)
             .build();
 

@@ -257,11 +257,11 @@ function filterInput(event: KeyboardEvent): boolean {
  * @returns A new builder instance.
  *
  * @example
- * const handler = keysHandlerFactory()
+ * const handler = keysHandlerBuilder()
  *   .add("ctrl+s", (e) => save())
  *   .build();
  */
-export function keysHandlerFactory(): KeysHandlerBuilder {
+export function keysHandlerBuilder(): KeysHandlerBuilder {
   return new KeysHandlerBuilder();
 }
 
