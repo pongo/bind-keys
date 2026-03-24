@@ -9,6 +9,7 @@ A simple, lightweight keyboard shortcut binding library for the browser.
 - **Aliases**: Common key names like `enter`, `space`, `esc`, `up`, `down`, etc.
 - **Input Filtering**: Automatically ignore shortcuts when typing in input fields.
 - **Event Control**: Built-in support for `preventDefault()` and `stopPropagation()`.
+- **Layout Independence**: Built-in logic to handle shortcuts consistently across different keyboard layouts (e.g., Russian).
 - **Utilities**: Helper functions for common patterns like numeric keys.
 
 ## Installation
@@ -85,3 +86,4 @@ Creates a new `KeysHandlerBuilder`.
 
 - `digits()`: Returns `["0", "1", ..., "9"]`.
 - `withModifier(modifier: string, keys: string[])`: Prefixes all `keys` with the `modifier`.
+- `getLayoutIndependentKey(event: KeyboardEvent)`: Returns the English key name associated with the physical key pressed (based on `event.code`). This allows shortcuts to work regardless of the active keyboard layout.
