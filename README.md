@@ -14,10 +14,10 @@ A simple, lightweight keyboard shortcut binding library for the browser.
 
 ## Installation
 
-This is an internal library. Import it directly from its directory:
+This is an internal library. Import it directly:
 
 ```typescript
-import { keysHandlerBuilder } from "@/lib/bind-keys";
+import { keysHandlerBuilder } from "./bind-keys";
 ```
 
 ## Usage
@@ -56,7 +56,7 @@ const handler = keysHandlerBuilder()
 You can bind multiple keys at once using an array.
 
 ```typescript
-import { keysHandlerBuilder, digits, withModifier } from "@/lib/bind-keys";
+import { keysHandlerBuilder, digits, withModifier } from "./bind-keys";
 
 const handler = keysHandlerBuilder()
   .add(withModifier("alt", digits()), (e) => {
