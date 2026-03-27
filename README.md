@@ -4,17 +4,15 @@ A simple keyboard shortcut binding library. Zero dependencies.
 
 ## Installation
 
-This is an internal library. Import it directly:
-
-```typescript
-import { keysHandlerBuilder } from "./bind-keys";
+```bash
+npm install pongo/bind-keys
 ```
 
 ## Usage
 
-### Example
-
 ```typescript
+import { keysHandlerBuilder } from "bind-keys";
+
 const handler = keysHandlerBuilder()
   .add(
     "ctrl+s",

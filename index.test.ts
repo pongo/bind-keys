@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { keysHandlerBuilder, digits, withModifier, getLayoutIndependentKey } from "./bind-keys";
+import { keysHandlerBuilder, digits, withModifier, getLayoutIndependentKey } from "./index";
 
 describe("bind-keys", () => {
   it("binds a single key", () => {

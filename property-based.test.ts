@@ -7,7 +7,7 @@ import {
   getLayoutIndependentKey,
   type KeyCombo,
   type BaseKey,
-} from "./bind-keys";
+} from "./index";
 
 const ALL_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
 const ALL_DIGITS = "0123456789".split("");
