@@ -281,7 +281,7 @@ export class KeysHandlerBuilder {
    * @returns The builder instance for chaining.
    */
   add(keys: KeyCombo | readonly KeyCombo[], handler: Handler, options: BindOptions = {}): this {
-    const keyArray = Array.isArray(keys) ? keys : [keys];
+    const keyArray = typeof keys === "string" ? [keys] : keys;
     for (const k of keyArray) {
       if (!k) continue;
       this.#bindings.push(...this.#parseKey(k, handler, options));
