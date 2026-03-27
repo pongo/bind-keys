@@ -7,7 +7,7 @@ import {
   getLayoutIndependentKey,
   type KeyCombo,
   type BaseKey,
-} from "./index";
+} from "./index.js";
 
 const ALL_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
 const ALL_DIGITS = "0123456789".split("");
@@ -408,7 +408,7 @@ describe("Helper Functions", () => {
         fc.property(fc.constantFrom(...MODIFIERS, "ctrl+shift"), (modifier) => {
           const result = withModifier(modifier, digits());
           expect(result).toHaveLength(10);
-          result.forEach((item, i) => {
+          result.forEach((item: string, i: number) => {
             expect(item).toBe(`${modifier}+${i}`);
           });
         }),
