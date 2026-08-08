@@ -60,6 +60,8 @@ declare function getLayoutIndependentKey(event: KeyboardEvent): string | undefin
  * Creates a new instance of KeysHandlerBuilder.
  * This is the primary entry point for the library.
  *
+ * @param defaultOptions - Default configuration applied to every binding.
+ * Individual binding options override these values.
  * @returns A new builder instance.
  *
  * @example
@@ -67,12 +69,13 @@ declare function getLayoutIndependentKey(event: KeyboardEvent): string | undefin
  *   .add("ctrl+s", (e) => save())
  *   .build();
  */
-declare function keysHandlerBuilder(): KeysHandlerBuilder;
+declare function keysHandlerBuilder(defaultOptions?: BindOptions): KeysHandlerBuilder;
 /**
  * Builder class for creating keyboard event handlers with multiple bindings.
  */
 declare class KeysHandlerBuilder {
     #private;
+    constructor(defaultOptions?: BindOptions);
     /**
      * Adds a new key binding to the builder.
      *

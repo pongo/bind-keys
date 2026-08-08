@@ -61,6 +61,67 @@ describe("bind-keys", () => {
     expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("applies default options to bindings", () => {
+    const handler = vi.fn();
+    const bound = keysHandlerBuilder({ filterInput: true, prevent: true })
+      .add("x", handler)
+      .build();
+
+    const input = document.createElement("input");
+    const filteredEvent = new KeyboardEvent("keydown", { key: "x" });
+    Object.defineProperty(filteredEvent, "target", { value: input });
+    bound(filteredEvent);
+    expect(handler).not.toHaveBeenCalled();
+
+    const event = new KeyboardEvent("keydown", { key: "x" });
+    const preventDefaultSpy = vi.spyOn(event, "preventDefault");
+    const stopPropagationSpy = vi.spyOn(event, "stopPropagation");
+    bound(event);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+    expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows binding options to override individual defaults", () => {
+    const handler = vi.fn();
+    const bound = keysHandlerBuilder({ filterInput: true, prevent: true })
+      .add("x", handler, { filterInput: false })
+      .add("y", handler, { prevent: false })
+      .build();
+
+    const input = document.createElement("input");
+    const xEvent = new KeyboardEvent("keydown", { key: "x" });
+    Object.defineProperty(xEvent, "target", { value: input });
+    const xPreventDefaultSpy = vi.spyOn(xEvent, "preventDefault");
+    bound(xEvent);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(xPreventDefaultSpy).toHaveBeenCalledTimes(1);
+
+    const yEvent = new KeyboardEvent("keydown", { key: "y" });
+    const yPreventDefaultSpy = vi.spyOn(yEvent, "preventDefault");
+    const yStopPropagationSpy = vi.spyOn(yEvent, "stopPropagation");
+    bound(yEvent);
+
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(yPreventDefaultSpy).not.toHaveBeenCalled();
+    expect(yStopPropagationSpy).not.toHaveBeenCalled();
+  });
+
+  it("takes a snapshot of default options", () => {
+    const defaultOptions = { prevent: true };
+    const builder = keysHandlerBuilder(defaultOptions);
+    defaultOptions.prevent = false;
+
+    const bound = builder.add("x", vi.fn()).build();
+    const event = new KeyboardEvent("keydown", { key: "x" });
+    const preventDefaultSpy = vi.spyOn(event, "preventDefault");
+    bound(event);
+
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+  });
+
   it("filters input elements effectively", () => {
     const handler = vi.fn();
     const bound = keysHandlerBuilder().add("y", handler, { filterInput: true }).build();

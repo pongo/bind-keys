@@ -254,6 +254,8 @@ function filterInput(event: KeyboardEvent): boolean {
  * Creates a new instance of KeysHandlerBuilder.
  * This is the primary entry point for the library.
  *
+ * @param defaultOptions - Default configuration applied to every binding.
+ * Individual binding options override these values.
  * @returns A new builder instance.
  *
  * @example
@@ -261,8 +263,8 @@ function filterInput(event: KeyboardEvent): boolean {
  *   .add("ctrl+s", (e) => save())
  *   .build();
  */
-export function keysHandlerBuilder(): KeysHandlerBuilder {
-  return new KeysHandlerBuilder();
+export function keysHandlerBuilder(defaultOptions: BindOptions = {}): KeysHandlerBuilder {
+  return new KeysHandlerBuilder(defaultOptions);
 }
 
 /**
@@ -270,6 +272,11 @@ export function keysHandlerBuilder(): KeysHandlerBuilder {
  */
 export class KeysHandlerBuilder {
   readonly #bindings: ParsedBinding[] = [];
+  readonly #defaultOptions: BindOptions;
+
+  constructor(defaultOptions: BindOptions = {}) {
+    this.#defaultOptions = { ...defaultOptions };
+  }
 
   /**
    * Adds a new key binding to the builder.
@@ -282,9 +289,10 @@ export class KeysHandlerBuilder {
    */
   add(keys: KeyCombo | readonly KeyCombo[], handler: Handler, options: BindOptions = {}): this {
     const keyArray = typeof keys === "string" ? [keys] : keys;
+    const bindingOptions = { ...this.#defaultOptions, ...options };
     for (const k of keyArray) {
       if (!k) continue;
-      this.#bindings.push(...this.#parseKey(k, handler, options));
+      this.#bindings.push(...this.#parseKey(k, handler, bindingOptions));
     }
     return this;
   }

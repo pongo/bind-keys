@@ -33,9 +33,11 @@ window.addEventListener("keydown", handler);
 
 ## API Reference
 
-### `keysHandlerBuilder()`
+### `keysHandlerBuilder(defaultOptions?)`
 
-Creates a new `KeysHandlerBuilder`.
+Creates a new `KeysHandlerBuilder`. The optional `defaultOptions` object accepts
+`filterInput` and `prevent` and applies them to every binding. Options passed to
+`.add()` override individual defaults, including with an explicit `false`.
 
 ### `KeysHandlerBuilder`
 

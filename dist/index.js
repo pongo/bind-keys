@@ -156,11 +156,15 @@ function filterInput(event) {
   }
   return true;
 }
-function keysHandlerBuilder() {
-  return new KeysHandlerBuilder();
+function keysHandlerBuilder(defaultOptions = {}) {
+  return new KeysHandlerBuilder(defaultOptions);
 }
 var KeysHandlerBuilder = class {
   #bindings = [];
+  #defaultOptions;
+  constructor(defaultOptions = {}) {
+    this.#defaultOptions = { ...defaultOptions };
+  }
   /**
    * Adds a new key binding to the builder.
    *
@@ -172,9 +176,10 @@ var KeysHandlerBuilder = class {
    */
   add(keys, handler, options = {}) {
     const keyArray = typeof keys === "string" ? [keys] : keys;
+    const bindingOptions = { ...this.#defaultOptions, ...options };
     for (const k of keyArray) {
       if (!k) continue;
-      this.#bindings.push(...this.#parseKey(k, handler, options));
+      this.#bindings.push(...this.#parseKey(k, handler, bindingOptions));
     }
     return this;
   }
