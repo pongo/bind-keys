@@ -23,10 +23,12 @@ interface BindOptions {
     /**
      * If true, the handler will not trigger if the event target is a text input,
      * textarea, or contentEditable element (unless it's read-only).
+     * Defaults to false when omitted.
      */
     filterInput?: boolean;
     /**
      * If true, calls `preventDefault()` and `stopPropagation()` on the event.
+     * Defaults to false when omitted.
      */
     prevent?: boolean;
 }

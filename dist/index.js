@@ -163,7 +163,10 @@ var KeysHandlerBuilder = class {
   #bindings = [];
   #defaultOptions;
   constructor(defaultOptions = {}) {
-    this.#defaultOptions = { ...defaultOptions };
+    this.#defaultOptions = {
+      filterInput: defaultOptions.filterInput ?? false,
+      prevent: defaultOptions.prevent ?? false
+    };
   }
   /**
    * Adds a new key binding to the builder.
@@ -176,7 +179,10 @@ var KeysHandlerBuilder = class {
    */
   add(keys, handler, options = {}) {
     const keyArray = typeof keys === "string" ? [keys] : keys;
-    const bindingOptions = { ...this.#defaultOptions, ...options };
+    const bindingOptions = {
+      filterInput: options.filterInput ?? this.#defaultOptions.filterInput,
+      prevent: options.prevent ?? this.#defaultOptions.prevent
+    };
     for (const k of keyArray) {
       if (!k) continue;
       this.#bindings.push(...this.#parseKey(k, handler, bindingOptions));
