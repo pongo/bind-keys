@@ -32,11 +32,13 @@ export interface BindOptions {
   /**
    * If true, the handler will not trigger if the event target is a text input,
    * textarea, or contentEditable element (unless it's read-only).
+   * Defaults to false when omitted.
    */
   filterInput?: boolean;
 
   /**
    * If true, calls `preventDefault()` and `stopPropagation()` on the event.
+   * Defaults to false when omitted.
    */
   prevent?: boolean;
 }
@@ -53,8 +55,10 @@ interface ParsedBinding {
   meta: boolean;
   key: string;
   handler: Handler;
-  options: BindOptions;
+  options: NormalizedBindOptions;
 }
+
+type NormalizedBindOptions = Required<BindOptions>;
 
 const NON_TEXT_INPUT_TYPES = new Set([
   "checkbox",
@@ -272,10 +276,13 @@ export function keysHandlerBuilder(defaultOptions: BindOptions = {}): KeysHandle
  */
 export class KeysHandlerBuilder {
   readonly #bindings: ParsedBinding[] = [];
-  readonly #defaultOptions: BindOptions;
+  readonly #defaultOptions: NormalizedBindOptions;
 
   constructor(defaultOptions: BindOptions = {}) {
-    this.#defaultOptions = { ...defaultOptions };
+    this.#defaultOptions = {
+      filterInput: defaultOptions.filterInput ?? false,
+      prevent: defaultOptions.prevent ?? false,
+    };
   }
 
   /**
@@ -289,7 +296,10 @@ export class KeysHandlerBuilder {
    */
   add(keys: KeyCombo | readonly KeyCombo[], handler: Handler, options: BindOptions = {}): this {
     const keyArray = typeof keys === "string" ? [keys] : keys;
-    const bindingOptions = { ...this.#defaultOptions, ...options };
+    const bindingOptions: NormalizedBindOptions = {
+      filterInput: options.filterInput ?? this.#defaultOptions.filterInput,
+      prevent: options.prevent ?? this.#defaultOptions.prevent,
+    };
     for (const k of keyArray) {
       if (!k) continue;
       this.#bindings.push(...this.#parseKey(k, handler, bindingOptions));
@@ -297,7 +307,7 @@ export class KeysHandlerBuilder {
     return this;
   }
 
-  #parseKey(combo: string, handler: Handler, options: BindOptions): ParsedBinding[] {
+  #parseKey(combo: string, handler: Handler, options: NormalizedBindOptions): ParsedBinding[] {
     const parts = combo.split("+").map((p) => p.trim().toLowerCase());
 
     let ctrl = false,
